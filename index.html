@@ -13,7 +13,11 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
     <link rel="icon" type="image/png" href="icon-512.png" sizes="512x512">
-    
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -34,9 +38,28 @@
             --shadow-inner: inset 3px 3px 6px rgba(0,0,0,0.08), inset -2px -2px 4px rgba(255,255,255,0.5);
             --btn-bg: linear-gradient(180deg, #e6e6e6 0%, #cccccc 100%);
             --toast-bg: #5a5a5a;
+            --accent: #3b6ef6;
+            --accent-soft: rgba(59,110,246,0.12);
+            --danger: #c0392b;
+            --transition-theme: background 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
+        }
+        body.dark {
+            --bg-start: #2a2c30;
+            --bg-end: #1c1d20;
+            --card-bg-start: #303237;
+            --card-bg-end: #232427;
+            --text-primary: #e8e9ec;
+            --text-secondary: #9ca1a8;
+            --border-light: rgba(255,255,255,0.06);
+            --shadow-outer: 8px 8px 18px rgba(0,0,0,0.45), -4px -4px 12px rgba(255,255,255,0.03);
+            --shadow-inner: inset 3px 3px 6px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(255,255,255,0.04);
+            --btn-bg: linear-gradient(180deg, #35373c 0%, #26272a 100%);
+            --toast-bg: #45474c;
+            --accent: #6d93ff;
+            --accent-soft: rgba(109,147,255,0.16);
         }
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Manrope', 'Inter', 'Segoe UI', system-ui, sans-serif;
             background: var(--bg-start);
             background-image: radial-gradient(circle at 30% 20%, var(--bg-start) 5%, var(--bg-end) 90%);
             display: flex;
@@ -45,6 +68,11 @@
             min-height: 100vh;
             padding: 16px;
             margin: 0;
+            transition: var(--transition-theme);
+        }
+        .app, .category-card, .title-card, .header-btn, .icon-btn, .btn-sm-icon, .btn,
+        .category-stats, .links-list, .link-item, .modal-box, .menu-popup, input, textarea {
+            transition: var(--transition-theme), transform 0.15s ease, box-shadow 0.15s ease;
         }
         .app {
             width: 100%;
@@ -81,6 +109,57 @@
             justify-content: center;
         }
         .header-btn:active { transform: scale(0.94); box-shadow: inset 3px 3px 6px rgba(0,0,0,0.15), inset -2px -2px 5px rgba(255,255,255,0.5); }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            border-radius: 30px;
+            background: var(--bg-start);
+            box-shadow: var(--shadow-inner);
+        }
+        .search-bar span { opacity: 0.5; font-size: 0.95rem; }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+        .search-bar input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        .search-clear-btn {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.85rem;
+            opacity: 0.5;
+            display: none;
+            padding: 2px 4px;
+        }
+        .search-clear-btn.show { display: inline-flex; }
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        mark {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-radius: 3px;
+            padding: 0 2px;
+        }
+        .category-card.force-expand .category-body { display: block !important; }
+        .link-favicon {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            vertical-align: -3px;
+            margin-right: 5px;
+            flex-shrink: 0;
+        }
         .add-category-btn {
             background: var(--btn-bg);
             box-shadow: var(--shadow-outer);
@@ -133,6 +212,18 @@
             font-weight: 700;
             flex: 1;
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+        .category-title span.cat-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .category-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 3px var(--accent-soft);
         }
         .category-stats {
             font-size: 0.65rem;
@@ -182,6 +273,7 @@
         .link-info {
             flex: 1;
             min-width: 0;
+            -webkit-touch-callout: none;
         }
         .link-name a {
             font-weight: 700;
@@ -257,7 +349,7 @@
         }
         .menu-popup .btn { margin: 0; justify-content: center; }
         .modal-title { font-weight: 700; font-size: 1rem; text-align: center; color: var(--text-primary); }
-        .modal-box input, .modal-box textarea {
+        .modal-box input, .modal-box textarea, .modal-box select {
             width: 100%;
             padding: 12px;
             border: none;
@@ -268,6 +360,7 @@
             font-size: 0.9rem;
             color: var(--text-primary);
         }
+        .modal-box select { appearance: none; -webkit-appearance: none; cursor: pointer; }
         .row-buttons { display: flex; gap: 12px; }
         .row-buttons .btn { flex: 1; margin: 0; }
         .btn {
@@ -321,14 +414,21 @@
     <div class="title-card">
         <div class="title-left"><span class="app-icon">📂</span><span class="app-title">链接管家</span></div>
         <div class="title-actions">
-            <button class="header-btn" id="menuBtn">☰</button>
+            <button class="header-btn" id="themeToggleBtn" aria-label="切换深色模式">🌙</button>
+            <button class="header-btn" id="menuBtn" aria-label="打开菜单">☰</button>
         </div>
+    </div>
+
+    <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索分类或链接..." aria-label="搜索">
+        <button class="search-clear-btn" id="searchClearBtn" aria-label="清空搜索">✕</button>
     </div>
 
     <div id="categoriesContainer" class="categories-container"></div>
 
     <div class="add-category-btn" id="addCategoryBtn">➕ 添加新分类</div>
-    <footer>长按拖拽 ⋮⋮ 可排序 | 点击 ▼ 折叠分类 | 点击链接名直接跳转</footer>
+    <footer>长按 ⋮⋮ 拖拽排序 | 长按链接 弹出快捷菜单 | 点击链接名直接跳转</footer>
 </div>
 
 <!-- 菜单弹窗 -->
@@ -336,9 +436,24 @@
     <div class="menu-popup">
         <button class="btn" id="exportNotesBtn">📋 导出笔记</button>
         <button class="btn" id="exportBackupBtn">💾 导出备份</button>
-        <button class="btn" id="importBtn">📂 导入数据</button>
+        <button class="btn" id="importBtn">📂 导入数据（JSON备份）</button>
+        <button class="btn" id="importNotesBtn">📝 导入笔记（粘贴文本）</button>
         <button class="btn btn-danger" id="clearAllBtn">⚠️ 清理所有数据</button>
         <button class="btn" id="menuCloseBtn">关闭</button>
+    </div>
+</div>
+
+<!-- 笔记反向导入 -->
+<div class="modal-overlay" id="notesImportOverlay">
+    <div class="modal-box">
+        <div class="modal-title">📝 从笔记导入</div>
+        <div style="font-size:0.68rem;opacity:0.6;text-align:center;">粘贴之前用「导出笔记」生成的文本，即可还原分类与链接</div>
+        <textarea id="notesImportInput" rows="8" placeholder="粘贴笔记文本..."></textarea>
+        <div class="row-buttons" style="flex-direction:column;">
+            <button class="btn" id="notesMergeImportBtn">🔄 合并导入</button>
+            <button class="btn" id="notesOverwriteImportBtn">📌 覆盖导入</button>
+            <button class="btn" id="notesImportCancelBtn">取消</button>
+        </div>
     </div>
 </div>
 
@@ -383,6 +498,7 @@
 <div class="modal-overlay" id="linkModal">
     <div class="modal-box">
         <div class="modal-title" id="linkModalTitle">添加链接</div>
+        <select id="linkCategorySelect"></select>
         <input type="text" id="linkNameInput" placeholder="链接名称">
         <input type="text" id="linkUrlInput" placeholder="https://...">
         <textarea id="linkDescInput" rows="2" placeholder="说明（可选）"></textarea>
@@ -390,6 +506,18 @@
             <button class="btn" id="linkSaveBtn">保存</button>
             <button class="btn" id="linkCancelBtn">取消</button>
         </div>
+    </div>
+</div>
+
+<!-- 链接快捷菜单（长按触发） -->
+<div class="modal-overlay" id="linkContextMenuOverlay">
+    <div class="menu-popup">
+        <div class="modal-title" id="contextMenuTitle" style="font-size:0.8rem;opacity:0.65;font-weight:600;"></div>
+        <button class="btn" id="ctxOpenBtn">🔗 打开链接</button>
+        <button class="btn" id="ctxCopyBtn">📋 复制链接</button>
+        <button class="btn" id="ctxEditBtn">✏️ 编辑</button>
+        <button class="btn btn-danger" id="ctxDeleteBtn">🗑️ 删除</button>
+        <button class="btn" id="ctxCancelBtn">取消</button>
     </div>
 </div>
 
@@ -411,15 +539,62 @@
 
 <script>
 // ======================= 数据模块 =======================
+const IDB = {
+    dbName: 'link_manager_db',
+    storeName: 'kv',
+    db: null,
+    open() {
+        if (this.db) return Promise.resolve(this.db);
+        return new Promise((resolve, reject) => {
+            if (!window.indexedDB) { reject(new Error('IndexedDB not supported')); return; }
+            const req = indexedDB.open(this.dbName, 1);
+            req.onupgradeneeded = () => { req.result.createObjectStore(this.storeName); };
+            req.onsuccess = () => { this.db = req.result; resolve(this.db); };
+            req.onerror = () => reject(req.error);
+        });
+    },
+    async get(key) {
+        const db = await this.open();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(this.storeName, 'readonly');
+            const req = tx.objectStore(this.storeName).get(key);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    },
+    async set(key, value) {
+        const db = await this.open();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(this.storeName, 'readwrite');
+            tx.objectStore(this.storeName).put(value, key);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+};
+
 const Storage = {
     key: 'category_link_manager_v6',
-    save(data) {
-        try { localStorage.setItem(this.key, JSON.stringify(data)); return true; }
-        catch(e) { if(e.name === 'QuotaExceededError') alert('存储空间已满！请导出备份后清理。'); return false; }
+    async save(data) {
+        try { await IDB.set(this.key, data); return true; }
+        catch(e) {
+            console.warn('IndexedDB 写入失败，回退到 localStorage', e);
+            try { localStorage.setItem(this.key, JSON.stringify(data)); return true; }
+            catch(e2) { if(e2.name === 'QuotaExceededError') alert('存储空间已满！请导出备份后清理。'); return false; }
+        }
     },
-    load() {
-        const raw = localStorage.getItem(this.key);
-        return raw ? JSON.parse(raw) : { categories: [], nextCategoryId: 1, nextLinkId: 1 };
+    async load() {
+        try {
+            const idbData = await IDB.get(this.key);
+            if (idbData) return idbData;
+            const raw = localStorage.getItem(this.key);
+            if (raw) { const parsed = JSON.parse(raw); await IDB.set(this.key, parsed); return parsed; }
+            return { categories: [], nextCategoryId: 1, nextLinkId: 1 };
+        } catch(e) {
+            console.warn('IndexedDB 读取失败，回退到 localStorage', e);
+            const raw = localStorage.getItem(this.key);
+            return raw ? JSON.parse(raw) : { categories: [], nextCategoryId: 1, nextLinkId: 1 };
+        }
     }
 };
 
@@ -427,8 +602,8 @@ const AppData = {
     categories: [],
     nextCategoryId: 1,
     nextLinkId: 1,
-    init() {
-        const saved = Storage.load();
+    async init() {
+        const saved = await Storage.load();
         this.categories = saved.categories || [];
         this.nextCategoryId = saved.nextCategoryId || 1;
         this.nextLinkId = saved.nextLinkId || 1;
@@ -461,12 +636,20 @@ const AppData = {
             this.save();
         }
     },
-    updateLink(categoryId, linkId, name, url, description) {
+    updateLink(categoryId, linkId, name, url, description, newCategoryId) {
         const cat = this.categories.find(c => c.id === categoryId);
-        if (cat) {
-            const link = cat.links.find(l => l.id === linkId);
-            if (link) { link.name = name; link.url = url; link.description = description || ''; this.save(); }
+        if (!cat) return;
+        const link = cat.links.find(l => l.id === linkId);
+        if (!link) return;
+        link.name = name; link.url = url; link.description = description || '';
+        if (newCategoryId && newCategoryId !== categoryId) {
+            const target = this.categories.find(c => c.id === newCategoryId);
+            if (target) {
+                cat.links = cat.links.filter(l => l.id !== linkId);
+                target.links.push(link);
+            }
         }
+        this.save();
     },
     deleteLink(categoryId, linkId) {
         const cat = this.categories.find(c => c.id === categoryId);
@@ -506,6 +689,8 @@ const AppData = {
 let editingCategoryId = null;
 let currentCategoryIdForLink = null;
 let editingLinkId = null;
+let contextMenuLinkId = null;
+let contextMenuCategoryId = null;
 
 function showToast(msg) { const t = document.getElementById('toastMsg'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
 
@@ -516,45 +701,74 @@ function render() {
         return;
     }
     let html = '';
-    for (const cat of AppData.categories) {
+    AppData.categories.forEach((cat, idx) => {
         const linkCount = cat.links.length;
+        const dotColor = CATEGORY_PALETTE[idx % CATEGORY_PALETTE.length];
         html += `<div class="category-card ${cat.collapsed ? 'collapsed' : ''}" data-category-id="${cat.id}">
             <div class="category-header">
-                <span class="drag-handle" data-drag-type="category" data-category-id="${cat.id}">⋮⋮</span>
-                <span class="collapse-btn" data-toggle-category="${cat.id}">▼</span>
-                <span class="category-title">📁 ${escapeHtml(cat.name)}</span>
+                <span class="drag-handle" data-drag-type="category" data-category-id="${cat.id}" aria-label="拖拽排序">⋮⋮</span>
+                <span class="collapse-btn" data-toggle-category="${cat.id}" aria-label="折叠/展开">▼</span>
+                <span class="category-title"><span class="category-dot" style="background:${dotColor}"></span><span class="cat-name">${escapeHtml(cat.name)}</span></span>
                 <span class="category-stats">${linkCount}个链接</span>
                 <div class="category-actions">
-                    <button class="icon-btn edit-category" data-category-id="${cat.id}" data-category-name="${escapeHtml(cat.name)}">✏️</button>
-                    <button class="icon-btn delete-category" data-category-id="${cat.id}" data-category-name="${escapeHtml(cat.name)}">🗑️</button>
+                    <button class="icon-btn edit-category" data-category-id="${cat.id}" data-category-name="${escapeHtml(cat.name)}" aria-label="编辑分类" title="编辑分类">✏️</button>
+                    <button class="icon-btn delete-category" data-category-id="${cat.id}" data-category-name="${escapeHtml(cat.name)}" aria-label="删除分类" title="删除分类">🗑️</button>
                 </div>
             </div>
             <div class="category-body">
                 <div class="links-list" data-category-id="${cat.id}">`;
         for (const link of cat.links) {
+            const favicon = getFaviconUrl(link.url);
             html += `<div class="link-item" data-link-id="${link.id}" data-category-id="${cat.id}">
-                <span class="link-drag-handle" data-drag-type="link" data-link-id="${link.id}" data-category-id="${cat.id}">⋮⋮</span>
+                <span class="link-drag-handle" data-drag-type="link" data-link-id="${link.id}" data-category-id="${cat.id}" aria-label="拖拽排序">⋮⋮</span>
                 <div class="link-info">
-                    <div class="link-name"><a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.name)}</a></div>
+                    <div class="link-name">${favicon ? `<img class="link-favicon" src="${favicon}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}<a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.name)}</a></div>
                     <div class="link-url">${escapeHtml(link.url)}</div>
-                    ${link.description ? `<div style="font-size:0.6rem;opacity:0.6;">${escapeHtml(link.description)}</div>` : ''}
+                    ${link.description ? `<div class="link-desc" style="font-size:0.6rem;opacity:0.6;">${escapeHtml(link.description)}</div>` : ''}
                 </div>
                 <div class="link-actions">
-                    <button class="btn-sm-icon copy-link" data-url="${escapeHtml(link.url)}">📋</button>
-                    <button class="btn-sm-icon edit-link" data-category-id="${cat.id}" data-link-id="${link.id}" data-name="${escapeHtml(link.name)}" data-url="${escapeHtml(link.url)}" data-desc="${escapeHtml(link.description || '')}">✏️</button>
-                    <button class="btn-sm-icon delete-link" data-category-id="${cat.id}" data-link-id="${link.id}">🗑️</button>
+                    <button class="btn-sm-icon copy-link" data-url="${escapeHtml(link.url)}" aria-label="复制链接" title="复制链接">📋</button>
+                    <button class="btn-sm-icon edit-link" data-category-id="${cat.id}" data-link-id="${link.id}" data-name="${escapeHtml(link.name)}" data-url="${escapeHtml(link.url)}" data-desc="${escapeHtml(link.description || '')}" aria-label="编辑链接" title="编辑链接">✏️</button>
+                    <button class="btn-sm-icon delete-link" data-category-id="${cat.id}" data-link-id="${link.id}" aria-label="删除链接" title="删除链接">🗑️</button>
                 </div>
             </div>`;
         }
         if (cat.links.length === 0) html += `<div class="empty-links">暂无链接</div>`;
         html += `</div><div class="add-link-btn" data-category-id="${cat.id}">➕ 添加链接</div></div></div>`;
-    }
+    });
     container.innerHTML = html;
     bindEvents();
     initDragAndDrop();
+    applySearch(document.getElementById('searchInput').value);
 }
 
-function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+function escapeHtml(str) { return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m])); }
+
+function highlightText(text, q) {
+    if (!q) return escapeHtml(text);
+    const str = String(text);
+    const lower = str.toLowerCase();
+    const ql = q.toLowerCase();
+    let result = '', i = 0, idx;
+    while ((idx = lower.indexOf(ql, i)) !== -1) {
+        result += escapeHtml(str.slice(i, idx));
+        result += '<mark>' + escapeHtml(str.slice(idx, idx + q.length)) + '</mark>';
+        i = idx + q.length;
+    }
+    result += escapeHtml(str.slice(i));
+    return result;
+}
+
+const CATEGORY_PALETTE = ['#3b6ef6', '#e07a3f', '#33a06f', '#a259c9', '#d64550', '#2b9bb0', '#c98a1c', '#6b6fd6'];
+function getFaviconUrl(url) {
+    try { const u = new URL(url); return `https://www.google.com/s2/favicons?sz=32&domain=${u.hostname}`; }
+    catch(e) { return ''; }
+}
+
+function populateCategorySelect(selectedId) {
+    const sel = document.getElementById('linkCategorySelect');
+    sel.innerHTML = AppData.categories.map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>📁 ${escapeHtml(c.name)}</option>`).join('');
+}
 
 function bindEvents() {
     document.querySelectorAll('[data-toggle-category]').forEach(el => {
@@ -567,10 +781,10 @@ function bindEvents() {
         btn.onclick = (e) => { e.stopPropagation(); if(confirm(`确定删除分类「${btn.dataset.categoryName}」及其所有链接吗？`)) { AppData.deleteCategory(parseInt(btn.dataset.categoryId)); render(); showToast('已删除'); } };
     });
     document.querySelectorAll('.add-link-btn').forEach(btn => {
-        btn.onclick = (e) => { e.stopPropagation(); currentCategoryIdForLink = parseInt(btn.dataset.categoryId); editingLinkId = null; document.getElementById('linkModalTitle').textContent = '添加链接'; document.getElementById('linkNameInput').value = ''; document.getElementById('linkUrlInput').value = ''; document.getElementById('linkDescInput').value = ''; document.getElementById('linkModal').classList.add('show'); };
+        btn.onclick = (e) => { e.stopPropagation(); currentCategoryIdForLink = parseInt(btn.dataset.categoryId); editingLinkId = null; document.getElementById('linkModalTitle').textContent = '添加链接'; document.getElementById('linkNameInput').value = ''; document.getElementById('linkUrlInput').value = ''; document.getElementById('linkDescInput').value = ''; populateCategorySelect(currentCategoryIdForLink); document.getElementById('linkModal').classList.add('show'); };
     });
     document.querySelectorAll('.edit-link').forEach(btn => {
-        btn.onclick = (e) => { e.stopPropagation(); currentCategoryIdForLink = parseInt(btn.dataset.categoryId); editingLinkId = parseInt(btn.dataset.linkId); document.getElementById('linkModalTitle').textContent = '编辑链接'; document.getElementById('linkNameInput').value = btn.dataset.name; document.getElementById('linkUrlInput').value = btn.dataset.url; document.getElementById('linkDescInput').value = btn.dataset.desc; document.getElementById('linkModal').classList.add('show'); };
+        btn.onclick = (e) => { e.stopPropagation(); currentCategoryIdForLink = parseInt(btn.dataset.categoryId); editingLinkId = parseInt(btn.dataset.linkId); document.getElementById('linkModalTitle').textContent = '编辑链接'; document.getElementById('linkNameInput').value = btn.dataset.name; document.getElementById('linkUrlInput').value = btn.dataset.url; document.getElementById('linkDescInput').value = btn.dataset.desc; populateCategorySelect(currentCategoryIdForLink); document.getElementById('linkModal').classList.add('show'); };
     });
     document.querySelectorAll('.delete-link').forEach(btn => {
         btn.onclick = (e) => { e.stopPropagation(); if(confirm('确定删除此链接？')) { AppData.deleteLink(parseInt(btn.dataset.categoryId), parseInt(btn.dataset.linkId)); render(); showToast('已删除'); } };
@@ -578,6 +792,7 @@ function bindEvents() {
     document.querySelectorAll('.copy-link').forEach(btn => {
         btn.onclick = (e) => { e.stopPropagation(); navigator.clipboard.writeText(btn.dataset.url); showToast('✅ 链接已复制'); };
     });
+    bindLongPress();
 }
 
 // 拖拽排序
@@ -746,6 +961,39 @@ function generateNotes() {
     return text;
 }
 
+function parseNotesText(text) {
+    const lines = text.split(/\r?\n/);
+    const categories = [];
+    let currentCat = null, currentLink = null;
+    let catId = 1, linkId = 1;
+    for (const raw of lines) {
+        const line = raw.trim();
+        const catMatch = line.match(/^【(.+?)】/);
+        if (catMatch) {
+            currentCat = { id: catId++, name: catMatch[1].trim(), links: [], collapsed: false };
+            categories.push(currentCat);
+            currentLink = null;
+            continue;
+        }
+        if (!currentCat) continue;
+        const linkMatch = line.match(/^\d+[\.\、]\s*(.+)$/);
+        if (linkMatch) {
+            currentLink = { id: linkId++, name: linkMatch[1].trim(), url: '', description: '' };
+            currentCat.links.push(currentLink);
+            continue;
+        }
+        const urlMatch = line.match(/^链接[:：]\s*(.+)$/);
+        if (urlMatch && currentLink) { currentLink.url = urlMatch[1].trim(); continue; }
+        const descMatch = line.match(/^说明[:：]\s*(.+)$/);
+        if (descMatch && currentLink) {
+            const d = descMatch[1].trim();
+            currentLink.description = (d === '无') ? '' : d;
+        }
+    }
+    categories.forEach(c => { c.links = c.links.filter(l => { try { new URL(l.url); return true; } catch(e) { return false; } }); });
+    return { categories, nextCategoryId: catId, nextLinkId: linkId };
+}
+
 function exportBackup() {
     const data = AppData.getAllData();
     const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
@@ -783,11 +1031,12 @@ document.getElementById('categorySaveBtn').onclick = () => { const name = docume
 document.getElementById('categoryCancelBtn').onclick = () => document.getElementById('categoryModal').classList.remove('show');
 document.getElementById('linkSaveBtn').onclick = () => {
     const name = document.getElementById('linkNameInput').value.trim(); const url = document.getElementById('linkUrlInput').value.trim(); const desc = document.getElementById('linkDescInput').value;
+    const selectedCategoryId = parseInt(document.getElementById('linkCategorySelect').value);
     if(!name) { alert('请输入链接名称'); return; }
     if(!url) { alert('请输入链接地址'); return; }
     try { new URL(url); } catch(e) { alert('链接格式无效，请以 http:// 或 https:// 开头'); return; }
-    if(editingLinkId) AppData.updateLink(currentCategoryIdForLink, editingLinkId, name, url, desc);
-    else AppData.addLink(currentCategoryIdForLink, name, url, desc);
+    if(editingLinkId) AppData.updateLink(currentCategoryIdForLink, editingLinkId, name, url, desc, selectedCategoryId);
+    else AppData.addLink(selectedCategoryId, name, url, desc);
     document.getElementById('linkModal').classList.remove('show'); render(); showToast('已保存');
 };
 document.getElementById('linkCancelBtn').onclick = () => document.getElementById('linkModal').classList.remove('show');
@@ -796,6 +1045,19 @@ document.getElementById('menuCloseBtn').onclick = () => document.getElementById(
 document.getElementById('exportNotesBtn').onclick = () => { document.getElementById('menuOverlay').classList.remove('show'); document.getElementById('notesPreview').innerText = generateNotes(); document.getElementById('notesOverlay').classList.add('show'); };
 document.getElementById('exportBackupBtn').onclick = () => { document.getElementById('menuOverlay').classList.remove('show'); exportBackup(); };
 document.getElementById('importBtn').onclick = () => { document.getElementById('menuOverlay').classList.remove('show'); document.getElementById('importModeOverlay').classList.add('show'); };
+document.getElementById('importNotesBtn').onclick = () => { document.getElementById('menuOverlay').classList.remove('show'); document.getElementById('notesImportInput').value = ''; document.getElementById('notesImportOverlay').classList.add('show'); };
+function importFromNotesText(mode) {
+    const text = document.getElementById('notesImportInput').value;
+    const parsed = parseNotesText(text);
+    if (!parsed.categories.length) { alert('未能从文本中识别出有效内容，请确认格式是否正确'); return; }
+    AppData.importData(parsed, mode);
+    render();
+    document.getElementById('notesImportOverlay').classList.remove('show');
+    showToast(mode === 'overwrite' ? '覆盖导入成功' : '合并导入成功');
+}
+document.getElementById('notesMergeImportBtn').onclick = () => importFromNotesText('merge');
+document.getElementById('notesOverwriteImportBtn').onclick = () => importFromNotesText('overwrite');
+document.getElementById('notesImportCancelBtn').onclick = () => document.getElementById('notesImportOverlay').classList.remove('show');
 document.getElementById('overwriteImportBtn').onclick = () => { document.getElementById('importModeOverlay').classList.remove('show'); importWithMode('overwrite'); };
 document.getElementById('mergeImportBtn').onclick = () => { document.getElementById('importModeOverlay').classList.remove('show'); importWithMode('merge'); };
 document.getElementById('cancelImportBtn').onclick = () => document.getElementById('importModeOverlay').classList.remove('show');
@@ -807,10 +1069,179 @@ document.getElementById('copyNotesBtn').onclick = () => { navigator.clipboard.wr
 document.getElementById('downloadNotesBtn').onclick = () => { const blob = new Blob([document.getElementById('notesPreview').innerText], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'links_notes.txt'; a.click(); };
 document.getElementById('closeNotesBtn').onclick = () => document.getElementById('notesOverlay').classList.remove('show');
 document.querySelectorAll('.modal-overlay').forEach(el => { el.addEventListener('click', (e) => { if(e.target === el) el.classList.remove('show'); }); });
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.show').forEach(el => el.classList.remove('show'));
+    }
+});
 
-AppData.init();
-render();
+// 搜索
+function applySearch(query) {
+    const q = query.trim().toLowerCase();
+    const container = document.getElementById('categoriesContainer');
+    let existingEmpty = document.getElementById('noResultsMsg');
+    if (existingEmpty) existingEmpty.remove();
+    if (!AppData.categories.length) return;
+    let anyMatch = false;
+    document.querySelectorAll('.category-card').forEach(card => {
+        const catId = parseInt(card.dataset.categoryId);
+        const cat = AppData.categories.find(c => c.id === catId);
+        if (!cat) return;
+        const catNameEl = card.querySelector('.cat-name');
+        if (catNameEl) catNameEl.innerHTML = highlightText(cat.name, q);
+        const catNameMatch = !q || cat.name.toLowerCase().includes(q);
+        let catHasMatch = catNameMatch;
+        card.querySelectorAll('.link-item').forEach(item => {
+            const linkId = parseInt(item.dataset.linkId);
+            const link = cat.links.find(l => l.id === linkId);
+            if (!link) return;
+            const match = !q || catNameMatch || (
+                link.name.toLowerCase().includes(q) ||
+                link.url.toLowerCase().includes(q) ||
+                (link.description || '').toLowerCase().includes(q)
+            );
+            const nameLinkEl = item.querySelector('.link-name a');
+            const urlEl = item.querySelector('.link-url');
+            const descEl = item.querySelector('.link-desc');
+            const showHighlight = q && !catNameMatch;
+            if (nameLinkEl) nameLinkEl.innerHTML = highlightText(link.name, showHighlight ? q : '');
+            if (urlEl) urlEl.innerHTML = highlightText(link.url, showHighlight ? q : '');
+            if (descEl) descEl.innerHTML = highlightText(link.description || '', showHighlight ? q : '');
+            item.style.display = match ? '' : 'none';
+            if (match) catHasMatch = true;
+        });
+        card.style.display = catHasMatch ? '' : 'none';
+        card.classList.toggle('force-expand', !!q && catHasMatch);
+        if (catHasMatch) anyMatch = true;
+    });
+    if (q && !anyMatch) {
+        const msg = document.createElement('div');
+        msg.className = 'no-results';
+        msg.id = 'noResultsMsg';
+        msg.textContent = `🔍 没有找到与「${query.trim()}」相关的内容`;
+        container.appendChild(msg);
+    }
+}
+const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+searchInput.addEventListener('input', (e) => {
+    searchClearBtn.classList.toggle('show', !!e.target.value);
+    applySearch(e.target.value);
+});
+searchClearBtn.onclick = () => { searchInput.value = ''; searchClearBtn.classList.remove('show'); applySearch(''); searchInput.focus(); };
+
+let longPressTimer = null;
+let longPressTriggered = false;
+function bindLongPress() {
+    document.querySelectorAll('.link-item .link-info').forEach(info => {
+        const item = info.closest('.link-item');
+        const start = () => {
+            longPressTriggered = false;
+            longPressTimer = setTimeout(() => {
+                longPressTriggered = true;
+                if (navigator.vibrate) navigator.vibrate(15);
+                openLinkContextMenu(item);
+            }, 480);
+        };
+        const cancel = () => clearTimeout(longPressTimer);
+        info.addEventListener('touchstart', start, { passive: true });
+        info.addEventListener('touchend', cancel);
+        info.addEventListener('touchmove', cancel);
+        info.addEventListener('mousedown', start);
+        info.addEventListener('mouseup', cancel);
+        info.addEventListener('mouseleave', cancel);
+        info.addEventListener('contextmenu', (e) => e.preventDefault());
+        const a = info.querySelector('a');
+        if (a) a.addEventListener('click', (e) => { if (longPressTriggered) { e.preventDefault(); longPressTriggered = false; } });
+    });
+}
+function openLinkContextMenu(item) {
+    contextMenuCategoryId = parseInt(item.dataset.categoryId);
+    contextMenuLinkId = parseInt(item.dataset.linkId);
+    const cat = AppData.categories.find(c => c.id === contextMenuCategoryId);
+    const link = cat && cat.links.find(l => l.id === contextMenuLinkId);
+    if (!link) return;
+    document.getElementById('contextMenuTitle').textContent = link.name;
+    document.getElementById('linkContextMenuOverlay').classList.add('show');
+}
+function getContextLink() {
+    const cat = AppData.categories.find(c => c.id === contextMenuCategoryId);
+    return cat ? cat.links.find(l => l.id === contextMenuLinkId) : null;
+}
+document.getElementById('ctxOpenBtn').onclick = () => {
+    const link = getContextLink();
+    document.getElementById('linkContextMenuOverlay').classList.remove('show');
+    if (link) window.open(link.url, '_blank', 'noopener');
+};
+document.getElementById('ctxCopyBtn').onclick = () => {
+    const link = getContextLink();
+    document.getElementById('linkContextMenuOverlay').classList.remove('show');
+    if (link) { navigator.clipboard.writeText(link.url); showToast('✅ 链接已复制'); }
+};
+document.getElementById('ctxEditBtn').onclick = () => {
+    const link = getContextLink();
+    document.getElementById('linkContextMenuOverlay').classList.remove('show');
+    if (!link) return;
+    currentCategoryIdForLink = contextMenuCategoryId; editingLinkId = contextMenuLinkId;
+    document.getElementById('linkModalTitle').textContent = '编辑链接';
+    document.getElementById('linkNameInput').value = link.name;
+    document.getElementById('linkUrlInput').value = link.url;
+    document.getElementById('linkDescInput').value = link.description || '';
+    populateCategorySelect(currentCategoryIdForLink);
+    document.getElementById('linkModal').classList.add('show');
+};
+document.getElementById('ctxDeleteBtn').onclick = () => {
+    document.getElementById('linkContextMenuOverlay').classList.remove('show');
+    if (confirm('确定删除此链接？')) { AppData.deleteLink(contextMenuCategoryId, contextMenuLinkId); render(); showToast('已删除'); }
+};
+document.getElementById('ctxCancelBtn').onclick = () => document.getElementById('linkContextMenuOverlay').classList.remove('show');
+
+// 深色模式
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+function applyTheme(isDark) {
+    document.body.classList.toggle('dark', isDark);
+    themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', isDark ? '#1c1d20' : '#d4d4d4');
+}
+const savedTheme = localStorage.getItem('link_manager_theme');
+const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+applyTheme(savedTheme ? savedTheme === 'dark' : prefersDark);
+themeToggleBtn.onclick = () => {
+    const isDark = !document.body.classList.contains('dark');
+    applyTheme(isDark);
+    localStorage.setItem('link_manager_theme', isDark ? 'dark' : 'light');
+};
+
+(async () => {
+    await AppData.init();
+    render();
+    handleShareIntent();
+})();
 if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW失败', err)); }); }
+
+// Web Share Target：从系统分享菜单接收链接
+function handleShareIntent() {
+    const params = new URLSearchParams(window.location.search);
+    const sharedTitle = params.get('title') || '';
+    const sharedText = params.get('text') || '';
+    let sharedUrl = params.get('url') || '';
+    if (!sharedUrl) {
+        const urlInText = (sharedText.match(/https?:\/\/\S+/) || [])[0];
+        if (urlInText) sharedUrl = urlInText;
+    }
+    if (!sharedUrl && !sharedText && !sharedTitle) return;
+    history.replaceState(null, '', window.location.pathname);
+    if (!AppData.categories.length) { AppData.addCategory('分享收藏'); render(); }
+    currentCategoryIdForLink = AppData.categories[0].id;
+    editingLinkId = null;
+    document.getElementById('linkModalTitle').textContent = '添加链接（来自分享）';
+    document.getElementById('linkNameInput').value = sharedTitle || sharedText.replace(sharedUrl, '').trim() || sharedUrl;
+    document.getElementById('linkUrlInput').value = sharedUrl;
+    document.getElementById('linkDescInput').value = '';
+    populateCategorySelect(currentCategoryIdForLink);
+    document.getElementById('linkModal').classList.add('show');
+}
+
 </script>
 </body>
 </html>
