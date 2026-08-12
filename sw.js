@@ -1,4 +1,4 @@
-const CACHE_NAME = 'links-manager-v2';
+const CACHE_NAME = 'links-manager-v1';
 const urlsToCache = [
   './',
   './index.html',
@@ -24,6 +24,14 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // 页面导航请求（含分享菜单带来的 ?title=&text=&url= 参数）统一回退到缓存的 index.html，
+  // 保证系统分享进来时离线也能打开，且不会因为 query string 而缓存不命中
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
